@@ -19,3 +19,7 @@ app.get('/', stream.stream(), function (req, res) {
 ```
 
 This example could fire off `pre-body-layout` as soon as the middleware is run, and then `landing` and `post-body-layout` as soon as `res.resnder()` is called.
+
+# More!
+
+More documentation is coming soon. See this [demo app](https://github.com/jpodwys/express-stream-demo) until then.
