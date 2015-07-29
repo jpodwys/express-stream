@@ -1,0 +1,26 @@
+{
+  "name": "express-stream",
+  "version": "0.1.0",
+  "description": "Response streaming middleware for Express 4.",
+  "main": "./expressStream.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpodwys/express-stream.git"
+  },
+  "author": "Joe Podwys",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jpodwys/express-stream/issues"
+  },
+  "homepage": "https://github.com/jpodwys/express-stream#readme",
+  "keywords": [
+    "express",
+    "response",
+    "stream",
+    "write",
+    "chunk"
+  ]
+}
