@@ -8,8 +8,8 @@ exports.write = function(path, encoding){
   }
 }
 
-var streamBefore = [];
-var streamAfter = [];
+var streamBefore = ['layout-pre-body'];
+var streamAfter = ['layout-post-body'];
 
 exports.setStreamBefore = function(before){
   streamBefore = before;
