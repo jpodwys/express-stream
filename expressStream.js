@@ -1,27 +1,29 @@
 var fs = require('fs');
 
-exports.write = function(path, encoding){
-  return function(req, res, next){
-    var headerFile = fs.readFileSync(path, encoding);
-    res.write(headerFile);
-    next();
-  }
-}
-
 var streamBefore = [];
 var streamAfter = [];
+var openDocument = false;
 var closeHeadOpenBody = false;
+var closeDocument = false;
 
-exports.setStreamBefore = function(before){
+exports.streamBefore = function(before){
   streamBefore = before;
 }
 
-exports.setStreamAfter = function(after){
+exports.streamAfter = function(after){
   streamAfter = after;
 }
 
-exports.setCloseHeadOpenBody = function(val){
+exports.openDocument = function(val){
+  openDocument = val;
+}
+
+exports.closeHeadOpenBody = function(val){
   closeHeadOpenBody = val;
+}
+
+exports.closeDocument = function(val){
+  closeDocument = val;
 }
 
 exports.stream = function(middlewareViews){
@@ -47,8 +49,15 @@ exports.stream = function(middlewareViews){
         for(var i = 0; i < streamAfter.length; i++){
           res.stream(streamAfter[i]);
         }
+        if(closeDocument){
+          res.write('</body></html>');
+        }
         this._end();
       }
+    }
+
+    if(openDocument){
+      res.write('<!DOCTYPE html><html><head>');
     }
 
     for(var i = 0; i < streamBefore.length; i++){
