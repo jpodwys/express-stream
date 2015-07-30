@@ -1,5 +1,3 @@
-var fs = require('fs');
-
 var streamBefore = [];
 var streamAfter = [];
 
