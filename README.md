@@ -10,15 +10,15 @@ Response streaming middleware for Express 4.
 var stream = require(express-stream);
 
 //Set the templates to be streamed before and after your `res.render()` call
-stream.setStreamBefore = ['pre-body-layout'];
-stream.setStreamAfter = ['post-body-layout'];
+stream.streamBefore(['pre-body-layout']);
+stream.streamAfter(['post-body-layout']);
 
 app.get('/', stream.stream(), function (req, res) {
   res.render('landing');
 });
 ```
 
-This example could fire off `pre-body-layout` as soon as the middleware is run, and then `landing` and `post-body-layout` as soon as `res.resnder()` is called.
+This example could fire off `pre-body-layout` as soon as the middleware is run, and then `landing` and `post-body-layout` as soon as `res.render()` is called.
 
 # More!
 
