@@ -10,6 +10,7 @@ exports.write = function(path, encoding){
 
 var streamBefore = [];
 var streamAfter = [];
+var closeHeadOpenBody = false;
 
 exports.setStreamBefore = function(before){
   streamBefore = before;
@@ -19,7 +20,11 @@ exports.setStreamAfter = function(after){
   streamAfter = after;
 }
 
-exports.stream = function(){
+exports.setCloseHeadOpenBody = function(val){
+  closeHeadOpenBody = val;
+}
+
+exports.stream = function(middlewareViews){
   return function (req, res, next){
 
     res.set = function(){}
@@ -48,6 +53,21 @@ exports.stream = function(){
 
     for(var i = 0; i < streamBefore.length; i++){
       res.stream(streamBefore[i]);
+    }
+
+    if(middlewareViews){
+      if(typeof middlewareViews === 'object'){
+        for(var i = 0; i < middlewareViews.length; i++){
+          res.stream(middlewareViews[i]);
+        }
+      }
+      else if(typeof middlewareViews === 'string'){
+        res.stream(middlewareViews);
+      }
+    }
+
+    if(closeHeadOpenBody){
+      res.write('</head><body>');
     }
 
     next();
