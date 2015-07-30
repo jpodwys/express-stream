@@ -22,4 +22,4 @@ This example could fire off `pre-body-layout` as soon as the middleware is run, 
 
 # More!
 
-More documentation is coming soon. See this [demo app](https://github.com/jpodwys/express-stream-demo) until then.
+More documentation is coming soon. See this [demo app](https://express-stream-demo.herokuapp.com/) until then.
