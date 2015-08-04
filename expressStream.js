@@ -1,12 +1,37 @@
 var streamBefore = [];
 var streamAfter = [];
+var closeHeadOpenBody = false;
+
+function streamArrayOrString(input){
+  if(input instanceof Array){
+    for(var i = 0; i < input.length; i++){
+      res.stream(input[i]);
+    }
+  }
+  else if(typeof input === 'string'){
+    res.stream(input);
+  }
+}
 
 exports.streamBefore = function(before){
-  streamBefore = (typeof before === 'object' && before.length) ? before : [];
+  streamBefore = (before instanceof Array || typeof before === 'string') ? before : [];
 }
 
 exports.streamAfter = function(after){
-  streamAfter = (typeof after === 'object' && after.length) ? after : [];
+  streamAfter = (after instanceof Array || typeof after === 'string') ? after : [];
+}
+
+exports.closeHeadOpenBody = function(view, options, callback){
+  if(typeof view === 'boolean'){
+    closeHeadOpenBody = view;
+  }
+  else if(typeof view === 'string'){
+    closeHeadOpenBody = {
+      view: view,
+      options: options,
+      callback: callback
+    }
+  }
 }
 
 exports.stream = function(middlewareViews){
@@ -29,25 +54,24 @@ exports.stream = function(middlewareViews){
     res.end = function (chunk, encoding) {
       this.write(chunk, encoding);
       if(this.isFinalChunk){
-        for(var i = 0; i < streamAfter.length; i++){
-          res.stream(streamAfter[i]);
-        }
+        streamArrayOrString(streamAfter);
         this._end();
       }
     }
 
-    for(var i = 0; i < streamBefore.length; i++){
-      res.stream(streamBefore[i]);
-    }
+    streamArrayOrString(streamBefore);
 
     if(middlewareViews){
-      if(typeof middlewareViews === 'object'){
-        for(var i = 0; i < middlewareViews.length; i++){
-          res.stream(middlewareViews[i]);
-        }
+      streamArrayOrString(middlewareViews);
+    }
+
+    if(closeHeadOpenBody){
+      var chob = closeHeadOpenBody;
+      if(typeof chob === 'boolean'){
+        res.write('</head><body>');
       }
-      else if(typeof middlewareViews === 'string'){
-        res.stream(middlewareViews);
+      else{
+        res.stream(chob.view, chob.options, chob.callback)
       }
     }
 
