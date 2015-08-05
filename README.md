@@ -34,6 +34,14 @@ Set an app-wide array of views to stream as soon as the `re.render()` call compl
 
 * after: type: array of strings, default: []
 
+## .closeHeadOpenBody(view, options, callback)
+
+If `view` is `true`, this will simply stream a `</head><body>` string to the client. If `view` is a `string`, this will stream the associated view with optional `options` and `callback`.
+
+* view: boolean or string
+* options: same as express's `options` param
+* callback: same as express's `callback` param
+
 ## .stream(middlewareViews)
 
 > This is a middleware-only function
