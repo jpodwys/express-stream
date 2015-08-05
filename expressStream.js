@@ -2,17 +2,6 @@ var streamBefore = [];
 var streamAfter = [];
 var closeHeadOpenBody = false;
 
-function streamArrayOrString(input){
-  if(input instanceof Array){
-    for(var i = 0; i < input.length; i++){
-      res.stream(input[i]);
-    }
-  }
-  else if(typeof input === 'string'){
-    res.stream(input);
-  }
-}
-
 exports.streamBefore = function(before){
   streamBefore = (before instanceof Array || typeof before === 'string') ? before : [];
 }
@@ -36,6 +25,17 @@ exports.closeHeadOpenBody = function(view, options, callback){
 
 exports.stream = function(middlewareViews){
   return function (req, res, next){
+
+    function streamArrayOrString(input){
+      if(input instanceof Array){
+        for(var i = 0; i < input.length; i++){
+          res.stream(input[i].view, input[i].options, input[i].callback);
+        }
+      }
+      else if(typeof input === 'string'){
+        res.stream(input);
+      }
+    }
 
     res.set = function(){}
 
