@@ -42,6 +42,7 @@ exports.stream = function(middlewareViews){
     res._render = res.render;
     res.render = function (view, options, callback) {
       this.isFinalChunk = true;
+      options.layout = false;
       this._render(view, options, callback);
     }
 
