@@ -1,6 +1,11 @@
+var globalOptions = {};
 var streamBefore = [];
 var streamAfter = [];
 var closeHeadOpenBody = false;
+
+exports.globalOptions = function(opts){
+  globalOptions = opts;
+}
 
 exports.streamBefore = function(before){
   streamBefore = (before instanceof Array || typeof before === 'string') ? before : [];
@@ -27,14 +32,26 @@ exports.stream = function(middlewareViews){
   return function (req, res, next){
 
     function streamArrayOrString(input){
-      if(input instanceof Array){
-        for(var i = 0; i < input.length; i++){
-          res.stream(input[i].view, input[i].options, input[i].callback);
-        }
-      }
-      else if(typeof input === 'string'){
+      if(typeof input === 'string'){
         res.stream(input);
       }
+      else if(input instanceof Array){
+        for(var i = 0; i < input.length; i++){
+          res.stream(input[i].view, options, input[i].callback);
+        }
+      }
+    }
+
+    function mergeOptions(opts){
+      if(typeof opts === 'object'){
+        for(key in globalOptions){
+          if(globalOptions.hasOwnProperty(key)){
+            opts[key] = globalOptions[key];
+          }
+        }
+        return opts;
+      }
+      return globalOptions;
     }
 
     res.set = function(){}
@@ -42,13 +59,12 @@ exports.stream = function(middlewareViews){
     res._render = res.render;
     res.render = function (view, options, callback) {
       this.isFinalChunk = true;
-      options.layout = false;
-      this._render(view, options, callback);
+      this._render(view, mergeOptions(options), callback);
     }
 
     res.stream = function (view, options, callback) {
       this.isFinalChunk = false;
-      this._render(view, options, callback);
+      this._render(view, mergeOptions(options), callback);
     }
 
     res._end = res.end;
@@ -56,7 +72,7 @@ exports.stream = function(middlewareViews){
       this.write(chunk, encoding);
       if(this.isFinalChunk){
         streamArrayOrString(streamAfter);
-        this._end();
+        res._end();
       }
     }
 
