@@ -28,7 +28,7 @@ exports.closeHeadOpenBody = function(view, options, callback){
   }
 }
 
-exports.stream = function(configView, middlewareViews){
+exports.stream = function(middlewareViews, configView){
   return function (req, res, next){
 
     function streamArrayOrString(input){
