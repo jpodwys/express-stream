@@ -28,7 +28,7 @@ exports.closeHeadOpenBody = function(view, options, callback){
   }
 }
 
-exports.stream = function(middlewareViews){
+exports.stream = function(configView, middlewareViews){
   return function (req, res, next){
 
     function streamArrayOrString(input){
@@ -37,7 +37,7 @@ exports.stream = function(middlewareViews){
       }
       else if(input instanceof Array){
         for(var i = 0; i < input.length; i++){
-          res.stream(input[i].view, options, input[i].callback);
+          res.stream(input[i].view, input[i].options, input[i].callback);
         }
       }
     }
@@ -74,6 +74,10 @@ exports.stream = function(middlewareViews){
         streamArrayOrString(streamAfter);
         res._end();
       }
+    }
+
+    if(configView){
+      res.stream(configView);
     }
 
     streamArrayOrString(streamBefore);
