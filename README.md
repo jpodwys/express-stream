@@ -59,6 +59,8 @@ Set an app-wide options object to be merged with the `options` param passed to a
 
 Set an app-wide view, or array of views, to stream as soon as the `stream.stream()` middleware is run. It's recommended that the views passed to `.streamBefore()` be used to open the `<html>` and `<head>` tags and list site-wide dependencies.
 
+If `view` is an array, all other passed params will be ignored.
+
 #### Arguments
 
 * view: type: string || array of strings || array of objects
@@ -91,6 +93,8 @@ stream.streamBefore(globalHeadList);
 > **_App-wide API Call_**
 
 Set an app-wide view, or array of views, to stream as soon as the `res.render()` call completes. It's recommended that the views passed to `.streamAfter()` be used to close the `<body>` and `<html>` tags.
+
+If `view` is an array, all other passed params will be ignored.
 
 #### Arguments
 
@@ -131,32 +135,46 @@ If `view` is `true`, this will simply stream a `</head><body>` string to the cli
 * options: same as express's `options` param
 * callback: same as express's `callback` param
 
-## .stream(headViews)
+## .stream(headView, headOptions, headCallback)
 
 > **_Middleware-only API Call_**
 
 Set an optional route-specific view, or list of views, to be rendered after the `.streamBefore()` array and before any `res.stream()`/`res.render()` views. It's recommended that your `.streamBefore()` views not close the `<head>` tag so that route-specific blocking dependencies can be injected into the `<head>` here.
 
-Please be aware, this is the only API to which you can pass the name of a view, but not an `options` or `callback` param.
+If `headView` is an array, all other passed params will be ignored.
 
 #### Arguments
 
-* headViews: type: string || array of strings || array of objects
+* headView: type: string || array of strings || array of objects
+* headOptions: same as express's `options` param
+* headCallback: same as express's `callback` param
 
 #### Examples
 
-With `headViews` as a string
+With `headView` as a string
 
 ```javascript
-app.get('/stream-route', stream.stream('render-blocking-assets'), function (req, res){
+app.get('/stream-route', stream.stream('render-blocking-assets', {custom: data}), function (req, res){
   res.render('stream-body');
 });
 ```
 
-With `headViews` as an array of strings
+With `headView` as an array of strings
 
 ```javascript
 app.get('/stream-route', stream.stream(['blocking-one', 'blocking-two']), function (req, res){
+  res.render('stream-body');
+});
+```
+
+With `headView` as an array of objects
+
+```javascript
+var blockingList = [
+  {view: 'blocking-one', options: {custom: data}},
+  {view: 'blocking-two'}
+]
+app.get('/stream-route', stream.stream(blockingList), function (req, res){
   res.render('stream-body');
 });
 ```
@@ -181,8 +199,6 @@ Compiles and streams a view just like `res.render()`, but does not trigger the `
 
 * All arguments are identical to `express`'s `res.render()` call
 
-
-
 # More!
 
-More documentation is coming soon. See this [demo app](https://express-stream-demo.herokuapp.com/) until then.
+Usage examples are coming. In the mean time, see this [demo app](https://express-stream-demo.herokuapp.com/).
