@@ -1,6 +1,6 @@
 {
   "name": "express-stream",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Response streaming middleware for Express 4.",
   "main": "./expressStream.js",
   "scripts": {
