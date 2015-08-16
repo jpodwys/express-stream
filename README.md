@@ -61,7 +61,7 @@ Set an app-wide view, or array of views, to stream as soon as the `stream.stream
 
 #### Arguments
 
-* view: type: string || array of objects
+* view: type: string || array of strings || array of objects
 * options: same as express's `options` param
 * callback: same as express's `callback` param
 
@@ -70,6 +70,11 @@ Set an app-wide view, or array of views, to stream as soon as the `stream.stream
 With `view` as a string
 ```javascript
 stream.streamBefore('global-head', {custom: data});
+```
+
+With `view` as an array of strings
+```javascript
+stream.streamBefore(['global-head-one', 'global-head-two']);
 ```
 
 With `view` as an array of objects
@@ -89,7 +94,7 @@ Set an app-wide view, or array of views, to stream as soon as the `res.render()`
 
 #### Arguments
 
-* view: type: string || array of objects
+* view: type: string || array of strings || array of objects
 * options: same as express's `options` param
 * callback: same as express's `callback` param
 
@@ -98,6 +103,11 @@ Set an app-wide view, or array of views, to stream as soon as the `res.render()`
 With `view` as a string
 ```javascript
 stream.streamAfter('global-footer', {custom: data});
+```
+
+With `view` as an array of strings
+```javascript
+stream.streamAfter(['global-footer-one', 'global-footer-two']);
 ```
 
 With `view` as an array of objects
@@ -125,11 +135,11 @@ If `view` is `true`, this will simply stream a `</head><body>` string to the cli
 
 > **_Middleware-only API Call_**
 
-Set an optional route-specific list of views to be rendered after the `.streamBefore()` array and before the `res.render()` view. It's recommended that your `.streamBefore()` views not close the `<head>` tag so that route-specific blocking dependencies can be injected into the `<head>` here.
+Set an optional route-specific view, or list of views, to be rendered after the `.streamBefore()` array and before any `res.stream()`/`res.render()` views. It's recommended that your `.streamBefore()` views not close the `<head>` tag so that route-specific blocking dependencies can be injected into the `<head>` here.
 
 #### Arguments
 
-* headViews: type: string || array of objects
+* headViews: type: string || array of strings || array of objects
 
 #### Examples
 
@@ -141,14 +151,18 @@ app.get('/stream-route', stream.stream('render-blocking-assets'), function (req,
 });
 ```
 
-With `headViews` as an array of objects
+With `headViews` as a string
 
 ```javascript
-var config = [
-  {view: 'render-blocking-one', options: {custom: data}},
-  {view: 'render-blocking-two'}
-]
-app.get('/stream-route', stream.stream(config), function (req, res){
+app.get('/stream-route', stream.stream('blocking-assets'), function (req, res){
+  res.render('stream-body');
+});
+```
+
+With `headViews` as an array of strings
+
+```javascript
+app.get('/stream-route', stream.stream(['blocking-one', 'blocking-two']), function (req, res){
   res.render('stream-body');
 });
 ```
