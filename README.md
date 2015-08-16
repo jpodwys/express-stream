@@ -137,6 +137,8 @@ If `view` is `true`, this will simply stream a `</head><body>` string to the cli
 
 Set an optional route-specific view, or list of views, to be rendered after the `.streamBefore()` array and before any `res.stream()`/`res.render()` views. It's recommended that your `.streamBefore()` views not close the `<head>` tag so that route-specific blocking dependencies can be injected into the `<head>` here.
 
+Please be aware, this is the only API to which you can pass the name of a view, but not an `options` or `callback` param.
+
 #### Arguments
 
 * headViews: type: string || array of strings || array of objects
@@ -147,14 +149,6 @@ With `headViews` as a string
 
 ```javascript
 app.get('/stream-route', stream.stream('render-blocking-assets'), function (req, res){
-  res.render('stream-body');
-});
-```
-
-With `headViews` as a string
-
-```javascript
-app.get('/stream-route', stream.stream('blocking-assets'), function (req, res){
   res.render('stream-body');
 });
 ```
