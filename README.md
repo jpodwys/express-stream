@@ -43,9 +43,9 @@ As the API section below demonstrates, there are five different stream events yo
 
 # API
 
-> ## **_App-wide API Calls_**
-
 ## .globalOptions(options)
+
+> **_App-wide API Call_**
 
 Set an app-wide options object to be merged with the `options` param passed to all `res.render()` and `res.stream()` calls.
 
@@ -54,6 +54,8 @@ Set an app-wide options object to be merged with the `options` param passed to a
 * options: type: object, default: {}
 
 ## .streamBefore(view, options, callback)
+
+> **_App-wide API Call_**
 
 Set an app-wide view, or array of views, to stream as soon as the `stream.stream()` middleware is run. It's recommended that the views passed to `.streamBefore()` be used to open the `<html>` and `<head>` tags and list site-wide dependencies.
 
@@ -81,6 +83,8 @@ stream.streamBefore(globalHeadList);
 
 ## .streamAfter(view, options, callback)
 
+> **_App-wide API Call_**
+
 Set an app-wide view, or array of views, to stream as soon as the `res.render()` call completes. It's recommended that the views passed to `.streamAfter()` be used to close the `<body>` and `<html>` tags.
 
 #### Arguments
@@ -107,6 +111,8 @@ stream.streamAfter(globalHeadList);
 
 ## .closeHeadOpenBody(view, options, callback)
 
+> **_App-wide API Call_**
+
 If `view` is `true`, this will simply stream a `</head><body>` string to the client. If `view` is a string, this will stream the associated view with optional `options` and `callback`.
 
 #### Arguments
@@ -115,9 +121,9 @@ If `view` is `true`, this will simply stream a `</head><body>` string to the cli
 * options: same as express's `options` param
 * callback: same as express's `callback` param
 
-> ## **_Middleware-only API Calls_**
-
 ## .stream(headViews)
+
+> **_Middleware-only API Call_**
 
 Set an optional route-specific list of views to be rendered after the `.streamBefore()` array and before the `res.render()` view. It's recommended that your `.streamBefore()` views not close the `<head>` tag so that route-specific blocking dependencies can be injected into the `<head>` here.
 
@@ -147,9 +153,9 @@ app.get('/stream-route', stream.stream(config), function (req, res){
 });
 ```
 
-> ## **_Route-specific API Calls_**
-
 ## res.render(view, options, callback)
+
+> **_Route-specific API Call_**
 
 Compiles and streams a view, then compiles and streams the views set by `.streamAfter()`, then closes the connection.
 
@@ -158,6 +164,8 @@ Compiles and streams a view, then compiles and streams the views set by `.stream
 * All arguments are identical to `express`'s `res.render()` call
 
 ## res.stream(view, options, callback)
+
+> **_Route-specific API Call_**
 
 Compiles and streams a view just like `res.render()`, but does not trigger the `.streamAfter()` array and does not close the connection.
 
