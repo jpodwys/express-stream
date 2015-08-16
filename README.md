@@ -43,11 +43,13 @@ As the API section below demonstrates, there are five different stream events yo
 
 # API
 
-> App-wide API calls
+> ## **_App-wide API Calls_**
 
 ## .globalOptions(options)
 
 Set an app-wide options object to be merged with the `options` param passed to all `res.render()` and `res.stream()` calls.
+
+#### Arguments
 
 * options: type: object, default: {}
 
@@ -107,29 +109,61 @@ stream.streamAfter(globalHeadList);
 
 If `view` is `true`, this will simply stream a `</head><body>` string to the client. If `view` is a string, this will stream the associated view with optional `options` and `callback`.
 
+#### Arguments
+
 * view: boolean or string
 * options: same as express's `options` param
 * callback: same as express's `callback` param
 
-> Middleware-only API calls
+> ## **_Middleware-only API Calls_**
 
-## .stream(middlewareViews)
+## .stream(headViews)
 
-Set an optional route-specific list of views to be rendered after the `.streamBefore()` array and before the `res.render()` view. It's recommended that your `.streamBefore()` views not close the `<head>` tag so that route-specific blocking dependencies can be injected into the `<head>` here. It is acceptable for the final view in `middlewareViews` to close the `<head>` tag.
+Set an optional route-specific list of views to be rendered after the `.streamBefore()` array and before the `res.render()` view. It's recommended that your `.streamBefore()` views not close the `<head>` tag so that route-specific blocking dependencies can be injected into the `<head>` here.
 
-* middlewareViews: type: array of strings || single string, default: undefined
+#### Arguments
 
-> Route-only API calls
+* headViews: type: string || array of objects
+
+#### Examples
+
+With `headViews` as a string
+
+```javascript
+app.get('/stream-route', stream.stream('render-blocking-assets'), function (req, res){
+  res.render('stream-body');
+});
+```
+
+With `headViews` as an array of objects
+
+```javascript
+var config = [
+  {view: 'render-blocking-one', options: {custom: data}},
+  {view: 'render-blocking-two'}
+]
+app.get('/stream-route', stream.stream(config), function (req, res){
+  res.render('stream-body');
+});
+```
+
+> ## **_Route-specific API Calls_**
 
 ## res.render(view, options, callback)
 
 Compiles and streams a view, then compiles and streams the views set by `.streamAfter()`, then closes the connection.
 
-* All arguments are identical to `express`
+#### Arguments
+
+* All arguments are identical to `express`'s `res.render()` call
 
 ## res.stream(view, options, callback)
 
 Compiles and streams a view just like `res.render()`, but does not trigger the `.streamAfter()` array and does not close the connection.
+
+#### Arguments
+
+* All arguments are identical to `express`'s `res.render()` call
 
 
 
