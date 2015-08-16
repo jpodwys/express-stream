@@ -38,8 +38,10 @@ exports.closeHeadOpenBody = function(view, options, callback){
   }
 }
 
-exports.stream = function(headViews, configView){
+exports.stream = function(headView, headOptions, headCallback, configView){
   return function (req, res, next){
+
+    var headViews = getStreamableValue(headView, headOptions, headCallback);
 
     function streamArrayOrString(input){
       if(input){
@@ -48,7 +50,12 @@ exports.stream = function(headViews, configView){
         }
         else if(input instanceof Array){
           for(var i = 0; i < input.length; i++){
-            res.stream(input[i].view, input[i].options, input[i].callback);
+            if(typeof input[i] === 'string'){
+              res.stream(input[i]);
+            }
+            else if(typeof input[i] === 'object'){
+              res.stream(input[i].view, input[i].options, input[i].callback);
+            }
           }
         }
       }
