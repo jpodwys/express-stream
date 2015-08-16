@@ -3,16 +3,26 @@ var streamBefore = [];
 var streamAfter = [];
 var closeHeadOpenBody = false;
 
+function getStreamableValue(view, options, callback){
+  if(typeof view === 'string'){
+    return [{view: view, options: options, callback: callback}];
+  }
+  else if(view instanceof Array){
+    return streamBefore = view;
+  }
+  return [];
+}
+
 exports.globalOptions = function(opts){
-  globalOptions = opts;
+  globalOptions = (typeof opts === 'object') ? opts : {};
 }
 
-exports.streamBefore = function(before){
-  streamBefore = (before instanceof Array || typeof before === 'string') ? before : [];
+exports.streamBefore = function(view, options, callback){
+  streamBefore = getStreamableValue(view, options, callback);
 }
 
-exports.streamAfter = function(after){
-  streamAfter = (after instanceof Array || typeof after === 'string') ? after : [];
+exports.streamAfter = function(view, options, callback){
+  streamAfter = getStreamableValue(view, options, callback);
 }
 
 exports.closeHeadOpenBody = function(view, options, callback){
@@ -28,16 +38,18 @@ exports.closeHeadOpenBody = function(view, options, callback){
   }
 }
 
-exports.stream = function(middlewareViews, configView){
+exports.stream = function(headViews, configView){
   return function (req, res, next){
 
     function streamArrayOrString(input){
-      if(typeof input === 'string'){
-        res.stream(input);
-      }
-      else if(input instanceof Array){
-        for(var i = 0; i < input.length; i++){
-          res.stream(input[i].view, input[i].options, input[i].callback);
+      if(input){
+        if(typeof input === 'string'){
+          res.stream(input);
+        }
+        else if(input instanceof Array){
+          for(var i = 0; i < input.length; i++){
+            res.stream(input[i].view, input[i].options, input[i].callback);
+          }
         }
       }
     }
@@ -79,12 +91,8 @@ exports.stream = function(middlewareViews, configView){
     if(configView){
       res.stream(configView);
     }
-
     streamArrayOrString(streamBefore);
-
-    if(middlewareViews){
-      streamArrayOrString(middlewareViews);
-    }
+    streamArrayOrString(headViews);
 
     if(closeHeadOpenBody){
       var chob = closeHeadOpenBody;
