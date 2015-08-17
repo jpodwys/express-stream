@@ -41,6 +41,14 @@ exports.streamAfter = function(view, options, callback){
   streamAfter = getStreamableValue(view, options, callback);
 }
 
+exports.useAllAutoTags = function(val){
+  if(val){
+    openHtmlOpenHead = true;
+    closeHeadOpenBody = true;
+    closeBodyCloseHtml = true;
+  }
+}
+
 exports.openHtmlOpenHead = function(view, options, callback){
   openHtmlOpenHead = getAutoTagValue(view, options, callback);
 }
