@@ -1,7 +1,9 @@
 var globalOptions = {};
 var streamBefore = [];
 var streamAfter = [];
+var openHtmlOpenHead = false;
 var closeHeadOpenBody = false;
+var closeBodyCloseHtml = false;
 
 function getStreamableValue(view, options, callback){
   if(typeof view === 'string'){
@@ -11,6 +13,20 @@ function getStreamableValue(view, options, callback){
     return streamBefore = view;
   }
   return [];
+}
+
+function getAutoTagValue(view, options, callback){
+  if(typeof view === 'boolean'){
+    return view;
+  }
+  else if(typeof view === 'string'){
+    return {
+      view: view,
+      options: options,
+      callback: callback
+    }
+  }
+  return false;
 }
 
 exports.globalOptions = function(opts){
@@ -25,23 +41,41 @@ exports.streamAfter = function(view, options, callback){
   streamAfter = getStreamableValue(view, options, callback);
 }
 
+exports.useAllAutoTags = function(val){
+  if(val){
+    openHtmlOpenHead = true;
+    closeHeadOpenBody = true;
+    closeBodyCloseHtml = true;
+  }
+}
+
+exports.openHtmlOpenHead = function(view, options, callback){
+  openHtmlOpenHead = getAutoTagValue(view, options, callback);
+}
+
 exports.closeHeadOpenBody = function(view, options, callback){
-  if(typeof view === 'boolean'){
-    closeHeadOpenBody = view;
-  }
-  else if(typeof view === 'string'){
-    closeHeadOpenBody = {
-      view: view,
-      options: options,
-      callback: callback
-    }
-  }
+  closeHeadOpenBody = getAutoTagValue(view, options, callback);
+}
+
+exports.closeBodyCloseHtml = function(view, options, callback){
+  closeBodyCloseHtml = getAutoTagValue(view, options, callback);
 }
 
 exports.stream = function(headView, headOptions, headCallback, configView){
   return function (req, res, next){
 
     var headViews = getStreamableValue(headView, headOptions, headCallback);
+
+    function streamAutoTags(input, html){
+      if(input){
+        if(typeof input === 'boolean'){
+          res.write(html);
+        }
+        else if(typeof input === 'object' && input.view){
+          res.stream(input.view, input.options, input.callback);
+        }
+      }
+    }
 
     function streamArrayOrString(input){
       if(input){
@@ -91,25 +125,18 @@ exports.stream = function(headView, headOptions, headCallback, configView){
       this.write(chunk, encoding);
       if(this.isFinalChunk){
         streamArrayOrString(streamAfter);
+        streamAutoTags(closeBodyCloseHtml, '</body></html>');
         res._end();
       }
     }
 
+    streamAutoTags(openHtmlOpenHead, '<!doctype html><html><head>');
     if(configView){
       res.stream(configView);
     }
     streamArrayOrString(streamBefore);
     streamArrayOrString(headViews);
-
-    if(closeHeadOpenBody){
-      var chob = closeHeadOpenBody;
-      if(typeof chob === 'boolean'){
-        res.write('</head><body>');
-      }
-      else{
-        res.stream(chob.view, chob.options, chob.callback)
-      }
-    }
+    streamAutoTags(closeHeadOpenBody, '</head><body>');
 
     next();
   }
