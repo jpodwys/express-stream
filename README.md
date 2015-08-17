@@ -12,16 +12,24 @@ Response streaming middleware for Express 4.
 # Basic Usage
 
 ```javascript
-//app.js or routes.js file
-var stream = require(express-stream);
+//Requires
+var express = require('express');
+var ejs = require('ejs');
+var stream = require('express-stream');
 
-//Set the templates to be streamed before and after your `res.render()` call
-stream.streamBefore('pre-body-layout');
-stream.streamAfter('post-body-layout');
+//App setup
+var app = express();
+app.set('views', './views');
+app.set('view engine', 'ejs');
+
+//App-wide streaming setup
+stream.useAllAutoTags(true);
+stream.streamBefore('pre-body-view');
+stream.streamAfter('post-body-view');
 
 //Add the middleware to the desired routes
 app.get('/', stream.stream(), function (req, res) {
-  res.render('landing');
+  res.render('landing'); //This route will now stream
 });
 ```
 
@@ -123,6 +131,18 @@ var globalHeadList = [
 stream.streamAfter(globalHeadList);
 ```
 
+## .openHtmlOpenHead(view, options, callback)
+
+> **_App-wide API Call_**
+
+If `view` is `true`, this will simply stream a `<!doctype html><html><head>` string to the client. If `view` is a string, this will stream the associated view with optional `options` and `callback`.
+
+#### Arguments
+
+* view: boolean or string
+* options: same as express's `options` param
+* callback: same as express's `callback` param
+
 ## .closeHeadOpenBody(view, options, callback)
 
 > **_App-wide API Call_**
@@ -134,6 +154,28 @@ If `view` is `true`, this will simply stream a `</head><body>` string to the cli
 * view: boolean or string
 * options: same as express's `options` param
 * callback: same as express's `callback` param
+
+## .closeBodyCloseHtml(view, options, callback)
+
+> **_App-wide API Call_**
+
+If `view` is `true`, this will simply stream a `</body></html>` string to the client. If `view` is a string, this will stream the associated view with optional `options` and `callback`.
+
+#### Arguments
+
+* view: boolean or string
+* options: same as express's `options` param
+* callback: same as express's `callback` param
+
+## .useAllAutoTags(val)
+
+> **_App-wide API Call_**
+
+A convenience method to set the same boolean value for `openHtmlOpenHead`, `closeHeadOpenBody`, and `closeBodyCloseHtml` in a single call.
+
+#### Arguments
+
+* val: boolean or string
 
 ## .stream(headView, headOptions, headCallback)
 
