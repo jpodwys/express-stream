@@ -51,6 +51,22 @@ As the API section below demonstrates, there are five different stream events yo
 
 # API
 
+## A note about the API section
+
+Just under each API notation, you'll see one of three lines of text. Here are each of them and what they mean:
+
+> **_App-wide API Call_**
+
+This call should be used once in your entire app for data that is common among all routes.
+
+> **_Middleware-only API Call_**
+
+This call should be used only as a middleware. All demonstrations here show it as a route middleware.
+
+> **_Route-specific API Call_**
+
+This call should only be used within a route definition.
+
 ## .globalOptions(options)
 
 > **_App-wide API Call_**
