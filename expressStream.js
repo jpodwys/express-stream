@@ -141,3 +141,36 @@ exports.stream = function(headView, headOptions, headCallback, configView){
     next();
   }
 }
+
+exports.pipe = function(){
+  return function (req, res, next){
+
+    res.set = function(){}
+
+    res._render = res.render;
+    res.stream = function (view, options, callback) {
+      this.isFinalChunk = false;
+      this._render(view, mergeOptions(options), callback);
+    }
+
+    res.pipe = function (chunk, encoding) {
+      this.isFinalChunk = false;
+      this.end(chunk, encoding);
+    }
+
+    res.close = function (chunk, encoding) {
+      this.isFinalChunk = true;
+      this.end(chunk, encoding);
+    }
+
+    res._end = res.end;
+    res.end = function (chunk, encoding) {
+      this.write(chunk, encoding);
+      if(this.isFinalChunk){
+        res._end();
+      }
+    }
+
+    next();
+  }
+}
