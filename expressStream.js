@@ -113,11 +113,13 @@ exports.stream = function(headView, headOptions, headCallback, configView){
     res.render = function (view, options, callback) {
       this.isFinalChunk = true;
       this._render(view, mergeOptions(options), callback);
+      return this;
     }
 
     res.stream = function (view, options, callback) {
       this.isFinalChunk = false;
       this._render(view, mergeOptions(options), callback);
+      return this;
     }
 
     res._end = res.end;
@@ -142,24 +144,53 @@ exports.stream = function(headView, headOptions, headCallback, configView){
   }
 }
 
+var wrapJavascript = false;
+
+exports.wrapJavascript = function(val){
+  wrapJavascript = (typeof val === 'boolean') ? val : false;
+}
+
 exports.pipe = function(){
   return function (req, res, next){
+
+    function sendOnloadEvent(){
+      var chunk = '<script>
+                    (function() {
+                      var e = document.createEvent("Event");
+                      e.initEvent("load", true, false);
+                      window.dispatchEvent(e);
+                    })();
+                  </script>'
+      res.write(chunk);
+    }
+
+    function wrapChunk(chunk){
+      if(wrapJavascript){
+        chunk = '<script>' + chunk + '</script>';
+      }
+      return chunk;
+    }
 
     res.set = function(){}
 
     res._render = res.render;
     res.stream = function (view, options, callback) {
       this.isFinalChunk = false;
-      this._render(view, mergeOptions(options), callback);
+      this._render(view, options, callback);
+      sendOnloadEvent();
+      return this;
     }
 
     res.pipe = function (chunk, encoding) {
       this.isFinalChunk = false;
+      chunk = getChunk(chunk);
       this.end(chunk, encoding);
+      return this;
     }
 
     res.close = function (chunk, encoding) {
       this.isFinalChunk = true;
+      chunk = getChunk(chunk);
       this.end(chunk, encoding);
     }
 
