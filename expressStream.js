@@ -154,13 +154,13 @@ exports.pipe = function(){
   return function (req, res, next){
 
     function sendOnloadEvent(){
-      var chunk = '<script>
-                    (function() {
-                      var e = document.createEvent("Event");
-                      e.initEvent("load", true, false);
-                      window.dispatchEvent(e);
-                    })();
-                  </script>'
+      var chunk = '<script>'
+                +  '(function() {'
+                +    'var e = document.createEvent("Event");'
+                +    'e.initEvent("load", true, false);'
+                +    'window.dispatchEvent(e);'
+                +  '})();'
+                + '</script>';
       res.write(chunk);
     }
 
