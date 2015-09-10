@@ -178,14 +178,17 @@ exports.pipe = function(){
       this.isFinalChunk = false;
       this._render(view, options, callback);
       sendOnloadEvent();
-      return this;
+    }
+
+    res.pipeView = function(view, options, callback) {
+      this.isFinalChunk = false;
+      this._render(view, options, callback);
     }
 
     res.pipe = function (chunk, encoding) {
       this.isFinalChunk = false;
       chunk = wrapChunk(chunk);
       this.end(chunk, encoding);
-      return this;
     }
 
     res.close = function (chunk, encoding) {
