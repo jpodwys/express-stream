@@ -124,7 +124,9 @@ exports.stream = function(headView, headOptions, headCallback, configView){
 
     res._end = res.end;
     res.end = function (chunk, encoding) {
-      this.write(chunk, encoding);
+      if(chunk){
+        this.write(chunk, encoding);
+      }
       if(this.isFinalChunk){
         streamArrayOrString(streamAfter);
         streamAutoTags(closeBodyCloseHtml, '</body></html>');
@@ -199,7 +201,9 @@ exports.pipe = function(){
 
     res._end = res.end;
     res.end = function (chunk, encoding) {
-      this.write(chunk, encoding);
+      if(chunk){
+        this.write(chunk, encoding);
+      }
       if(this.isFinalChunk){
         res._end();
       }
