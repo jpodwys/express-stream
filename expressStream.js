@@ -165,7 +165,7 @@ exports.pipe = function(){
     }
 
     function wrapChunk(chunk){
-      if(wrapJavascript){
+      if(chunk && wrapJavascript){
         chunk = '<script>' + chunk + '</script>';
       }
       return chunk;
@@ -174,7 +174,7 @@ exports.pipe = function(){
     res.set = function(){}
 
     res._render = res.render;
-    res.stream = function (view, options, callback) {
+    res.render = function (view, options, callback) {
       this.isFinalChunk = false;
       this._render(view, options, callback);
       sendOnloadEvent();
@@ -183,14 +183,14 @@ exports.pipe = function(){
 
     res.pipe = function (chunk, encoding) {
       this.isFinalChunk = false;
-      chunk = getChunk(chunk);
+      chunk = wrapChunk(chunk);
       this.end(chunk, encoding);
       return this;
     }
 
     res.close = function (chunk, encoding) {
       this.isFinalChunk = true;
-      chunk = getChunk(chunk);
+      chunk = wrapChunk(chunk);
       this.end(chunk, encoding);
     }
 
