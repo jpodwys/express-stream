@@ -113,16 +113,20 @@ exports.stream = function(headView, headOptions, headCallback, configView){
     res.render = function (view, options, callback) {
       this.isFinalChunk = true;
       this._render(view, mergeOptions(options), callback);
+      return this;
     }
 
     res.stream = function (view, options, callback) {
       this.isFinalChunk = false;
       this._render(view, mergeOptions(options), callback);
+      return this;
     }
 
     res._end = res.end;
     res.end = function (chunk, encoding) {
-      this.write(chunk, encoding);
+      if(chunk){
+        this.write(chunk, encoding);
+      }
       if(this.isFinalChunk){
         streamArrayOrString(streamAfter);
         streamAutoTags(closeBodyCloseHtml, '</body></html>');
@@ -137,6 +141,73 @@ exports.stream = function(headView, headOptions, headCallback, configView){
     streamArrayOrString(streamBefore);
     streamArrayOrString(headViews);
     streamAutoTags(closeHeadOpenBody, '</head><body>');
+
+    next();
+  }
+}
+
+var wrapJavascript = false;
+
+exports.wrapJavascript = function(val){
+  wrapJavascript = (typeof val === 'boolean') ? val : false;
+}
+
+exports.pipe = function(){
+  return function (req, res, next){
+
+    var onloadSent = false;
+
+    function sendOnloadEvent(){
+      var chunk = '<script>'
+                +  '(function() {'
+                +    'var e = document.createEvent("Event");'
+                +    'e.initEvent("load", true, false);'
+                +    'window.dispatchEvent(e);'
+                +  '})();'
+                + '</script>';
+      res.write(chunk);
+    }
+
+    function wrapChunk(chunk){
+      if(chunk && wrapJavascript){
+        chunk = '<script>' + chunk + '</script>';
+      }
+      return chunk;
+    }
+
+    res.set = function(){}
+
+    res._render = res.render;
+    res.stream = function (view, options, callback) {
+      this.isFinalChunk = false;
+      this._render(view, options, callback);
+      if(!onloadSent){
+        sendOnloadEvent();
+        onloadSent = true;
+      }
+    }
+
+    res.pipe = function (chunk, encoding) {
+      this.isFinalChunk = false;
+      chunk = wrapChunk(chunk);
+      this.end(chunk, encoding);
+    }
+
+    res.close = function (chunk, encoding) {
+      this.isFinalChunk = true;
+      chunk = wrapChunk(chunk);
+      this.end(chunk, encoding);
+    }
+
+    res._end = res.end;
+    res.end = function (chunk, encoding) {
+      if(chunk){
+        this.write(chunk, encoding);
+      }
+      if(this.isFinalChunk){
+        res._end();
+      }
+    }
 
     next();
   }
