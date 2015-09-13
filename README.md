@@ -82,7 +82,7 @@ Because express-stream's two middleware functions patch express's res object dif
 |res.stream(view, options, callback)   | res   | When you use `.pipe()`, this funciton is added to the `res` object. It is the same as `res.render()` except that it does not close the HTTP connection.   | Same as express   |
 | res.pipe(output, encoding)  | res  | Send a string of JavaScrpit to the client | `Output`: JavaScript output as a string `Encoding`: defaults to 'UTF-8' |
 | res.close(output, encoding)  | res | Same as `res.pipe()`, but closes the connection when finished. | Same as `res.pipe()`  |
-| stream.wrapJavascript(val)  | stream | Whether to wrap all `res.pipe()` and `res.close()` output with '<script>' and '</script>'  | Boolean |
+| stream.wrapJavascript(val)  | stream | Whether to wrap all `res.pipe()` and `res.close()` output with '<script>' and '</script>'  | `val`: boolean stating whether to use this feature, defaults to false |
 
 # stream.stream()
 
