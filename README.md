@@ -2,14 +2,44 @@
 
 Response streaming middleware for Express 4.
 
-# Features
+# What is This?
 
-* Get your render-blocking assets to the browser so the browser can fetch them while you process and send the rest of your response!
-* Stream as many views per route as you want
-* Robust API
-* Tiny footprint
+express-stream exposes two middleware functions.
+* `stream.pipe()` is the least opinionated BigPipe implementation around and is ideal for client-side rendering
+* `stream.stream()` is ideal for server-side rendering
 
-# Basic Usage
+Both methods allow you to get content in front of your users as fast as possible by taking forms of latency that generally occur sequentially and making them occur in parallel.
+
+# Basic Client-Side Render/BigPipe Usage
+
+```javascript
+//Requires
+var express = require('express');
+var ejs = require('ejs');
+var stream = require('express-stream');
+var superagent = require('superagent');
+
+//App setup
+var app = express();
+app.set('views', './views');
+app.set('view engine', 'ejs');
+
+//Add the middleware to the desired routes
+app.get('/', stream.pipe(), function (req, res) {
+  res.stream('landing'); //Stream the landing page
+  superagent
+    .get(uri)
+    .end(function (err, response){
+      res.stream('landing-data', {response.body.data}); //Stream data to populate the landing page
+      res.close();
+    }
+  );
+});
+```
+
+This example would immediately stream 'landing' to the browser while the superagent call fatches the dynamic parts of the page. As soon as the superagent call resolves, it is streamed within a self-executing JavaScript block from which it injects some data into the already-rendered view.
+
+# Basic Server-Side Render Usage
 
 ```javascript
 //Requires
@@ -34,6 +64,27 @@ app.get('/', stream.stream(), function (req, res) {
 ```
 
 This example streams the `pre-body-layout` view as soon as the `stream.stream()` middleware is run, and then `landing` and `post-body-layout` as soon as `res.render()` is called.
+
+
+
+
+# API
+
+## A note about the API section
+
+Because express-stream's two middleware functions patch express differently, the API section is divided into two portions--one for each middleware function. Any functions you see within a section are only applicable when used with the middleware from the same portion of the API.
+
+## stream.pipe()
+
+| Function  | Scope  | Description  | Arguments   |
+|---|---|---|---|---|
+| stream.pipe()  | middleware   | This middleware function is written for client-side rendering. It can be used as a loose BigPipe implementation.  | N/A   |
+|res.stream(view, options, callback)   | res   | When you use `.pipe()`, this funciton is added to the `res` object. It is the same as `res.render()` except that it does not close the HTTP connection.   | Same as express   |
+| res.pipe(output, encoding)  | res  | Send a string of JavaScrpit to the client | `Output`: JavaScript output as a string `Encoding`: defaults to 'UTF-8' |
+| res.close(output, encoding)  | res | Same as `res.pipe()`, but closes the connection when finished. | Same as `res.pipe()`  |
+| stream.wrapJavascript(val)  | stream | Whether to wrap all `res.pipe()` and `res.close()` output with '<script>' and '</script>'  | Boolean |
+
+## stream.stream()
 
 # How Does It Work?
 
