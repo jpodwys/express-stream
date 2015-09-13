@@ -72,7 +72,7 @@ This example streams the `pre-body-layout` view as soon as the `stream.stream()`
 
 ## A note about the API section
 
-Because express-stream's two middleware functions patch express's res object differently, the API section is divided into two portions--one for each middleware function. Any functions you see within a section are only applicable when used with the middleware from the same portion of the API.
+Because express-stream's two middleware functions patch express's res object differently, the API section is divided into two portions--one for each middleware function. Any functions you see within a section are only applicable when used with the middleware from the same portion of the API. `stream.pipe()`'s API is simpler so it's in a table. `stream.stream()`'s API is more complex so it's written out with examples.
 
 # stream.pipe()
 
