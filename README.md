@@ -72,9 +72,9 @@ This example streams the `pre-body-layout` view as soon as the `stream.stream()`
 
 ## A note about the API section
 
-Because express-stream's two middleware functions patch express differently, the API section is divided into two portions--one for each middleware function. Any functions you see within a section are only applicable when used with the middleware from the same portion of the API.
+Because express-stream's two middleware functions patch express's res object differently, the API section is divided into two portions--one for each middleware function. Any functions you see within a section are only applicable when used with the middleware from the same portion of the API.
 
-## stream.pipe()
+# stream.pipe()
 
 | Function  | Scope  | Description  | Arguments   |
 |---|---|---|---|---|
@@ -84,39 +84,7 @@ Because express-stream's two middleware functions patch express differently, the
 | res.close(output, encoding)  | res | Same as `res.pipe()`, but closes the connection when finished. | Same as `res.pipe()`  |
 | stream.wrapJavascript(val)  | stream | Whether to wrap all `res.pipe()` and `res.close()` output with '<script>' and '</script>'  | Boolean |
 
-## stream.stream()
-
-# How Does It Work?
-
-When the `stream.stream()` middleware is used, `express-stream` patches `express`'s `res` object so that the calls you make within the affected route will now stream data in several responses rather than build up one massive HTML string and send it as a single response.
-
-# Order of Calls
-
-As the API section below demonstrates, there are five different stream events you can hook into. While this is not the order in which you will call each of these functions, `express-stream` will output the value of each of the following functions in the following order:
-
-1. `stream.streamBefore()`
-2. `stream.stream()` (the middleware function)
-3. `stream.closeHeadOpenBody()`
-4. `res.stream()`/`res.render()`
-5. `stream.streamAfter()`
-
-# API
-
-## A note about the API section
-
-Just under each API notation, you'll see one of three lines of text. Here are each of them and what they mean:
-
-> **_App-wide API Call_**
-
-This call should be used once in your entire app for data that is common among all routes.
-
-> **_Middleware-only API Call_**
-
-This call should be used only as a middleware. All demonstrations here show it as a route middleware.
-
-> **_Route-specific API Call_**
-
-This call should only be used within a route definition.
+# stream.stream()
 
 ## .globalOptions(options)
 
