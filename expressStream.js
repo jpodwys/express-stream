@@ -155,6 +155,8 @@ exports.wrapJavascript = function(val){
 exports.pipe = function(){
   return function (req, res, next){
 
+    var onloadSent = false;
+
     function sendOnloadEvent(){
       var chunk = '<script>'
                 +  '(function() {'
@@ -176,15 +178,13 @@ exports.pipe = function(){
     res.set = function(){}
 
     res._render = res.render;
-    res.render = function (view, options, callback) {
+    res.stream = function (view, options, callback) {
       this.isFinalChunk = false;
       this._render(view, options, callback);
-      sendOnloadEvent();
-    }
-
-    res.pipeView = function(view, options, callback) {
-      this.isFinalChunk = false;
-      this._render(view, options, callback);
+      if(!onloadSent){
+        sendOnloadEvent();
+        onloadSent = true;
+      }
     }
 
     res.pipe = function (chunk, encoding) {
