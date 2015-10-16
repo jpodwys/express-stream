@@ -2,7 +2,7 @@
 
 Response streaming middleware for Express 4.
 
-See this [demo app](https://express-stream-demo.herokuapp.com/)
+Check out the [demo app](https://express-stream-demo.herokuapp.com/).
 
 # What is This?
 
