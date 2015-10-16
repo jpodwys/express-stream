@@ -37,7 +37,7 @@ app.get('/', stream.pipe(), function (req, res) {
 });
 ```
 
-This example would immediately stream 'landing' to the browser while the superagent call fatches the dynamic parts of the page. As soon as the superagent call resolves, it is streamed within a self-executing JavaScript block from which it injects some data into the already-rendered view.
+This example would immediately stream 'landing' to the browser while the superagent call fetches the dynamic parts of the page. As soon as the superagent call resolves, it is streamed within a self-executing JavaScript block from which it injects some data into the already-rendered view.
 
 # Basic Server-Side Render Usage
 
