@@ -118,7 +118,7 @@ exports.stream = function(headView, headOptions, configView){
     res.end = function () {
       streamArrayOrString(streamAfter);
       streamAutoTags(closeBodyCloseHtml, '</body></html>');
-      res.end();
+      res._end();
     }
 
     streamAutoTags(openHtmlOpenHead, '<!doctype html><html><head>');
