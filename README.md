@@ -2,6 +2,8 @@
 
 Response streaming middleware for Express 4.
 
+**IMPMORTANT:** If you want your streamed responses to have GZIP enabled, please use the excellent [express `compression` middleware](https://www.npmjs.com/package/compression). If you use `compression` as an app-wide middleware, `express-stream` will automitically take advantage of it.
+
 Check out the [demo app](https://express-stream-demo.herokuapp.com/).
 
 # What is This?
@@ -61,7 +63,8 @@ stream.streamAfter('post-body-view');
 
 //Add the middleware to the desired routes
 app.get('/', stream.stream(), function (req, res) {
-  res.render('landing'); //This route will now stream
+  res.stream('landing'); //This route will now stream
+  res.close();
 });
 ```
 
@@ -81,10 +84,9 @@ Because express-stream's two middleware functions patch express's res object dif
 | Function  | Scope  | Description  | Arguments   |
 |---|---|---|---|---|
 | stream.pipe()  | middleware   | This middleware function is written for client-side rendering. It can be used as a loose BigPipe implementation.  | N/A   |
-|res.stream(view, options, callback)   | res   | When you use `.pipe()`, this funciton is added to the `res` object. It is the same as `res.render()` except that it does not close the HTTP connection.   | Same as express   |
-| res.pipe(output, encoding)  | res  | Send a string of JavaScrpit to the client | `Output`: JavaScript output as a string `Encoding`: defaults to 'UTF-8' |
-| res.close(output, encoding)  | res | Same as `res.pipe()`, but closes the connection when finished. | Same as `res.pipe()`  |
-| stream.wrapJavascript(val)  | stream | Whether to wrap all `res.pipe()` and `res.close()` output with '<script>' and '</script>'  | `val`: boolean stating whether to use this feature, defaults to false |
+|res.stream(view, options)   | res   | When you use `.pipe()`, this funciton is added to the `res` object. It is the same as `res.render()` except that it does not close the HTTP connection and does not accept a callback   | Same as express   |
+| res.streamText(output)  | res  | Send a string of text to the client | `Output`: Text output as a string |
+| res.close()  | res | Closes the connection when finished. |   |
 
 # stream.stream()
 
@@ -98,7 +100,7 @@ Set an app-wide options object to be merged with the `options` param passed to a
 
 * options: type: object, default: {}
 
-## .streamBefore(view, options, callback)
+## .streamBefore(view, options)
 
 > **_App-wide API Call_**
 
@@ -110,7 +112,6 @@ If `view` is an array, all other passed params will be ignored.
 
 * view: type: string || array of strings || array of objects
 * options: same as express's `options` param
-* callback: same as express's `callback` param
 
 #### Examples
 
@@ -133,7 +134,7 @@ var globalHeadList = [
 stream.streamBefore(globalHeadList);
 ```
 
-## .streamAfter(view, options, callback)
+## .streamAfter(view, options)
 
 > **_App-wide API Call_**
 
@@ -145,7 +146,6 @@ If `view` is an array, all other passed params will be ignored.
 
 * view: type: string || array of strings || array of objects
 * options: same as express's `options` param
-* callback: same as express's `callback` param
 
 #### Examples
 
@@ -168,41 +168,38 @@ var globalHeadList = [
 stream.streamAfter(globalHeadList);
 ```
 
-## .openHtmlOpenHead(view, options, callback)
+## .openHtmlOpenHead(view, options)
 
 > **_App-wide API Call_**
 
-If `view` is `true`, this will simply stream a `<!doctype html><html><head>` string to the client. If `view` is a string, this will stream the associated view with optional `options` and `callback`.
+If `view` is `true`, this will simply stream a `<!doctype html><html><head>` string to the client. If `view` is a string, this will stream the associated view with optional `options`.
 
 #### Arguments
 
 * view: boolean or string
 * options: same as express's `options` param
-* callback: same as express's `callback` param
 
-## .closeHeadOpenBody(view, options, callback)
+## .closeHeadOpenBody(view, options)
 
 > **_App-wide API Call_**
 
-If `view` is `true`, this will simply stream a `</head><body>` string to the client. If `view` is a string, this will stream the associated view with optional `options` and `callback`.
+If `view` is `true`, this will simply stream a `</head><body>` string to the client. If `view` is a string, this will stream the associated view with optional `options`.
 
 #### Arguments
 
 * view: boolean or string
 * options: same as express's `options` param
-* callback: same as express's `callback` param
 
-## .closeBodyCloseHtml(view, options, callback)
+## .closeBodyCloseHtml(view, options)
 
 > **_App-wide API Call_**
 
-If `view` is `true`, this will simply stream a `</body></html>` string to the client. If `view` is a string, this will stream the associated view with optional `options` and `callback`.
+If `view` is `true`, this will simply stream a `</body></html>` string to the client. If `view` is a string, this will stream the associated view with optional `options`.
 
 #### Arguments
 
 * view: boolean or string
 * options: same as express's `options` param
-* callback: same as express's `callback` param
 
 ## .useAllAutoTags(val)
 
@@ -214,7 +211,7 @@ A convenience method to set the same boolean value for `openHtmlOpenHead`, `clos
 
 * val: boolean or string
 
-## .stream(headView, headOptions, headCallback)
+## .stream(headView, headOptions)
 
 > **_Middleware-only API Call_**
 
@@ -226,7 +223,6 @@ If `headView` is an array, all other passed params will be ignored.
 
 * headView: type: string || array of strings || array of objects
 * headOptions: same as express's `options` param
-* headCallback: same as express's `callback` param
 
 #### Examples
 
@@ -234,7 +230,8 @@ With `headView` as a string
 
 ```javascript
 app.get('/stream-route', stream.stream('render-blocking-assets', {custom: data}), function (req, res){
-  res.render('stream-body');
+  res.stream('stream-body');
+  res.close();
 });
 ```
 
@@ -242,7 +239,8 @@ With `headView` as an array of strings
 
 ```javascript
 app.get('/stream-route', stream.stream(['blocking-one', 'blocking-two']), function (req, res){
-  res.render('stream-body');
+  res.stream('stream-body');
+  res.close();
 });
 ```
 
@@ -254,21 +252,12 @@ var blockingList = [
   {view: 'blocking-two'}
 ]
 app.get('/stream-route', stream.stream(blockingList), function (req, res){
-  res.render('stream-body');
+  res.stream('stream-body');
+  res.close();
 });
 ```
 
-## res.render(view, options, callback)
-
-> **_Route-specific API Call_**
-
-Compiles and streams a view, then compiles and streams the views set by `.streamAfter()`, then closes the connection.
-
-#### Arguments
-
-* All arguments are identical to `express`'s `res.render()` call
-
-## res.stream(view, options, callback)
+## res.stream(view, options)
 
 > **_Route-specific API Call_**
 
@@ -276,8 +265,26 @@ Compiles and streams a view just like `res.render()`, but does not trigger the `
 
 #### Arguments
 
-* All arguments are identical to `express`'s `res.render()` call
+* All arguments are identical to `express`'s `res.render()` call expect that `callback` is missing.
+
+## res.streamText(text)
+
+> **_Route-specific API Call_**
+
+Streams the provided text to the client.
+
+#### Arguments
+
+* All arguments are identical to `express`'s `res.render()` call excpet that `callback` is missing.
 
 # More!
 
 Usage examples are coming. In the mean time, see this [demo app](https://express-stream-demo.herokuapp.com/).
+
+# Breaking Change History
+
+#### 1.0.0
+
+* `stream.pipe()` now only exposes `res.stream(view, data)`, `res.streamText(text)`, and `res.close()`.
+* `stream.stream()`'s `res.render(view, data)` function is now `res.stream(view, data)`.
+* Custom `res.*` functions no longer accept the `callback` param.
