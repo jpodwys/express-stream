@@ -280,3 +280,11 @@ Streams the provided text to the client.
 # More!
 
 Usage examples are coming. In the mean time, see this [demo app](https://express-stream-demo.herokuapp.com/).
+
+# Breaking Change History
+
+#### 1.0.0
+
+* `stream.pipe()` now only exposes `res.stream(view, data)`, `res.streamText(text)`, and `res.close()`.
+* `stream.stream()`'s `res.render(view, data)` function is now `res.stream(view, data)`.
+* Custom `res.*` functions no longer accept the `callback` param.
