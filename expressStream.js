@@ -1,3 +1,42 @@
+/*
+ * Output html to the client
+ */
+function stream(res, html){
+  res.write(html);
+  if(res.flush) res.flush();
+}
+
+/*
+ * BigPipe (client-side render) implementation
+ */
+exports.pipe = function(req, res, next){
+  var onloadSent = false;
+
+  function sendOnloadEvent(){
+    if(onloadSent) return;
+    var html = '<script>'
+              +  '(function() {'
+              +    'var e = document.createEvent("Event");'
+              +    'e.initEvent("load", true, false);'
+              +    'window.dispatchEvent(e);'
+              +  '})();'
+              + '</script>';
+    stream(res, html);
+    onloadSent = true;
+  }
+
+  res.stream = function(view, data){
+    res.render(view, data, function (err, html){
+      stream(res, html);
+      sendOnloadEvent();
+    });
+  }
+  next();
+}
+
+/*
+ * Server-side render implementation
+ */
 var globalOptions = {};
 var streamBefore = [];
 var streamAfter = [];
@@ -68,8 +107,7 @@ exports.stream = function(headView, headOptions, configView){
     function streamAutoTags(input, html){
       if(input){
         if(typeof input === 'boolean'){
-          res.write(html);
-          if(res.flush) res.flush();
+          stream(res, html);
         }
         else if(typeof input === 'object' && input.view){
           res.stream(input.view, input.options);
@@ -109,8 +147,7 @@ exports.stream = function(headView, headOptions, configView){
 
     res.stream = function (view, options) {
       this.render(view, mergeOptions(options), function (err, html){
-        res.write(html);
-        if(res.flush) res.flush();
+        stream(res, html);
       });
     }
 
@@ -131,14 +168,4 @@ exports.stream = function(headView, headOptions, configView){
 
     next();
   }
-}
-
-exports.pipe = function(req, res, next){
-  res.stream = function(view, data){
-    res.render(view, data, function (err, html){
-      res.write(html);
-      if(res.flush) res.flush();
-    });
-  }
-  next();
 }
