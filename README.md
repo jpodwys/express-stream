@@ -2,6 +2,8 @@
 
 Response streaming middleware for Express 4.
 
+**IMPMORTANT:** If you want your streamed responses to have GZIP enabled, please use the excellent [express `compression` middleware](https://www.npmjs.com/package/compression). If you use `compression` as an app-wide middleware, `express-stream` will automitically take advantage of it.
+
 Check out the [demo app](https://express-stream-demo.herokuapp.com/).
 
 # What is This?
