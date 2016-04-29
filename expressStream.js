@@ -31,6 +31,11 @@ exports.pipe = function(req, res, next){
       // sendOnloadEvent();
     });
   }
+
+  res.streamText = function(text){
+    stream(res, text);
+  }
+
   next();
 }
 
@@ -149,6 +154,10 @@ exports.stream = function(headView, headOptions, configView){
       this.render(view, mergeOptions(options), function (err, html){
         stream(res, html);
       });
+    }
+
+    res.streamText = function (text) {
+      stream(res, text);
     }
 
     res._end = res.end;
