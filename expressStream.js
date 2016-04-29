@@ -9,34 +9,36 @@ function stream(res, html){
 /*
  * BigPipe (client-side render) implementation
  */
-exports.pipe = function(req, res, next){
-  // var onloadSent = false;
+exports.pipe = function(){
+  return function (req, res, next){
+    // var onloadSent = false;
 
-  // function sendOnloadEvent(){
-  //   if(onloadSent) return;
-  //   var html = '<script>'
-  //             +  '(function() {'
-  //             +    'var e = document.createEvent("Event");'
-  //             +    'e.initEvent("load", true, false);'
-  //             +    'window.dispatchEvent(e);'
-  //             +  '})();'
-  //             + '</script>';
-  //   stream(res, html);
-  //   onloadSent = true;
-  // }
+    // function sendOnloadEvent(){
+    //   if(onloadSent) return;
+    //   var html = '<script>'
+    //             +  '(function() {'
+    //             +    'var e = document.createEvent("Event");'
+    //             +    'e.initEvent("load", true, false);'
+    //             +    'window.dispatchEvent(e);'
+    //             +  '})();'
+    //             + '</script>';
+    //   stream(res, html);
+    //   onloadSent = true;
+    // }
 
-  res.stream = function(view, data){
-    res.render(view, data, function (err, html){
-      stream(res, html);
-      // sendOnloadEvent();
-    });
+    res.stream = function(view, data){
+      res.render(view, data, function (err, html){
+        stream(res, html);
+        // sendOnloadEvent();
+      });
+    }
+
+    res.streamText = function(text){
+      stream(res, text);
+    }
+
+    next();
   }
-
-  res.streamText = function(text){
-    stream(res, text);
-  }
-
-  next();
 }
 
 /*
