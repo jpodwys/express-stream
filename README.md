@@ -30,7 +30,6 @@ app.set('view engine', 'ejs');
 
 //Add the middleware to the desired routes
 app.get('/', stream.pipe(), function (req, res) {
-  res.setHeader('Content-Type', 'text/html');
   res.stream('landing'); //Stream the landing page
   superagent
     .get(uri)
