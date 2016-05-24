@@ -2,8 +2,9 @@
  * Output html to the client
  */
 function stream(res, html){
-  res.write(html);
-  if(res.flush) res.flush();
+  res.write(html, null, function(){
+    if(res.flush) res.flush();
+  });
 }
 
 /*
@@ -27,6 +28,10 @@ exports.pipe = function(){
     // }
 
     res.stream = function(view, data){
+      // SHOULD I DO THIS?
+      // if(!res.headersSent){
+      //   res.setHeader('Content-Type', 'text/html');
+      // }
       res.render(view, data, function (err, html){
         stream(res, html);
         // sendOnloadEvent();
