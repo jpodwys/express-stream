@@ -81,12 +81,12 @@ Because express-stream's two middleware functions patch express's res object dif
 
 # stream.pipe()
 
-| Function  | Scope  | Description  | Arguments   |
-|---|---|---|---|---|
-| stream.pipe()  | middleware   | This middleware function is written for client-side rendering. It can be used as a loose BigPipe implementation.  | N/A   |
-|res.stream(view, options)   | res   | When you use `.pipe()`, this funciton is added to the `res` object. It is the same as `res.render()` except that it does not close the HTTP connection and does not accept a callback   | Same as express   |
-| res.streamText(output)  | res  | Send a string of text to the client | `Output`: Text output as a string |
-| res.close()  | res | Closes the connection when finished. |   |
+Function  |  Scope  |  Description  |  Arguments
+----------|---------|---------------|-------------
+stream.pipe()  |  middleware  |  This middleware function is written for client-side rendering. It can be used as a loose BigPipe implementation.  |  N/A
+res.stream(view, options)  |  res  |  When you use `.pipe()`, this funciton is added to the `res` object. It is the same as `res.render()` except that it does not close the HTTP connection and does not accept a callback  |  Same as express   
+res.streamText(output)  |  res  |  Send a string of text to the client  |  `Output`: Text output as a string 
+res.close()  |  res  |  Closes the connection when finished.
 
 # stream.stream()
 
